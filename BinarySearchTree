@@ -1,0 +1,97 @@
+package com.dou.interviewKroger;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class BinarySearchTree {
+	class Node {
+		int key;
+		Node left, right;
+		List<Integer> positions;
+		
+		public Node(int key, int position) {
+			this.key = key;
+			
+			positions = new ArrayList<>(); // always null when calling constructor
+			positions.add(position);
+		}
+	}
+	
+	Node root;
+	
+	public void insertArray(int[] initialArrayInts) {
+		AtomicInteger position = new AtomicInteger();
+		Arrays.stream(initialArrayInts).forEach(intValue -> insert(intValue, position.getAndIncrement()));
+	}
+	
+	private void insert(int key, int position) {
+		root = insertRec(key, root, position);
+	}
+	
+	private Node insertRec(int key, Node root, int position) {
+		if (null == root) {
+			Node node = new Node(key, position);
+			return node;
+		}
+		
+		if (root.key == key) {
+			root.positions.add(position);
+		} else if (root.key < key) {
+			root.right = insertRec(key, root.right, position);
+		} else {
+			root.left = insertRec(key, root.left, position);
+		}
+		
+		return root;
+	}
+	
+	public String search(int key) {
+		Node nodeFound = searchRec(key, root);
+		String positions = "";
+		
+		if (null != nodeFound) {
+			positions = nodeFound.positions.toString().replace('[', ' ');
+			positions = positions.replace(']', ' ');
+			
+			return positions;
+		}
+		
+		return "-1";
+	}
+	
+	private Node searchRec(int key, Node root) {
+		if (null == root || root.key == key) {
+			return root;
+		}
+		
+		if (root.key < key) {
+			return searchRec(key, root.right);
+		} else {
+			return searchRec(key, root.left);
+		}
+	}
+	
+	public Node printTree(Node root) {
+		if (root == null) {
+			return null;
+		}
+		
+		printTree(root.right);
+		System.out.print(root.key + "(" + root.positions + "), ");
+		printTree(root.left);
+		
+		return root;
+	}
+
+	public static void main(String[] args) {
+		BinarySearchTree bst = new BinarySearchTree();
+		bst.insertArray(new int[] {23, 36, 98, 333, 24, 12, 15, 16, 39, 45, 24});
+		bst.printTree(bst.root);
+		System.out.println("");
+		System.out.println("Searching value 1: " + bst.search(1));
+		System.out.println("Searching value 39: " + bst.search(39));
+		System.out.println("Searching value 24: " + bst.search(24));
+	}
+}
